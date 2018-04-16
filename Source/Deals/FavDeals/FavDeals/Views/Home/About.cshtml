@@ -1,0 +1,148 @@
+﻿@model IEnumerable<FavDeals.Models.Deal>
+@{
+    ViewBag.Title = "About";
+    WebGrid grid = new WebGrid(Model);
+}
+<h2>@ViewBag.Title.</h2>
+<h3>@ViewBag.Message</h3>
+@*<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>*@ 
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<p>Use this area to provide additional information.</p>
+<div>
+    @grid.GetHtml(tableStyle: "table", alternatingRowStyle: "webgrid-alternating-row",
+        columns: grid.Columns(grid.Column("DId", "Id", format: @<text>  <span class="display-mode">@item.DId </span> <label id="edtDId" class="edit-mode">@item.DId</label> </text>),
+        grid.Column("DSource", "DSource", format: @<text>  <span class="display-mode"> <label id="lblDSource">@item.DSource</label> </span> <input type="text" id="edtDSource" value="@item.DSource" class="edit-mode" /></text>),
+        grid.Column("DProduct", "DProduct", format: @<text>  <span class="display-mode"> <label id="lblDProduct">@item.DProduct</label> </span> <input type="text" id="edtDProduct" value="@item.DProduct" class="edit-mode" /></text>),
+        grid.Column("DLink", "DLink", format: @<text>  <span class="display-mode"> <label id="lblDLink">@item.DLink</label> </span> <input type="text" id="edtDLink" value="@item.DLink" class="edit-mode" /></text>),
+        grid.Column("DOrgPrice", "DOrgPrice", format: @<text>  <span class="display-mode"> <label id="lblDOrgPrice">@item.DOrgPrice</label> </span> <input type="text" id="edtDOrgPrice" value="@item.DOrgPrice" class="edit-mode" /></text>),
+        grid.Column("DOffPrice", "DOffPrice", format: @<text>  <span class="display-mode"> <label id="lblDOffPrice">@item.DOffPrice</label> </span> <input type="text" id="edtDOffPrice" value="@item.DOffPrice" class="edit-mode" /></text>),
+        grid.Column("Action", format: @<text>
+                <button class="edit-user display-mode">Edit</button>
+                <button class="save-user edit-mode">Save</button>
+                <button class="cancel-user edit-mode">Cancel</button>
+        </text>),
+        grid.Column("Action", format: @<text>
+                <button class="del-user display-mode">Delete</button>
+        </text>)))
+</div>
+
+@using (Html.BeginForm("Add", "Home", FormMethod.Post))
+{
+<div>
+    <div class="row">
+        <div class="col-lg-4 right">
+            @Html.Label("lblSource", "Source")
+        </div>
+        <div class="col-lg-4">
+            @Html.TextBox("DSource")
+        </div>
+        <div class="col-lg-4"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4 right">
+            @Html.Label("lblProduct", "Product")
+        </div>
+        <div class="col-lg-4">
+            @Html.TextBox("DProduct")
+        </div>
+        <div class="col-lg-4"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4 right">
+            @Html.Label("lblLink", "Link")
+        </div>
+        <div class="col-lg-4">
+            @Html.TextBox("DLink")
+        </div>
+        <div class="col-lg-4"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4 right">
+            @Html.Label("lblOrgPrice", "Original Price")
+        </div>
+        <div class="col-lg-4">
+            @Html.TextBox("DOrgPrice")
+        </div>
+        <div class="col-lg-4"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4 right">
+            @Html.Label("lblOffPrice", "Offer Price")
+        </div>
+        <div class="col-lg-4">
+            @Html.TextBox("DOffPrice")
+        </div>
+        <div class="col-lg-4"></div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4 right">
+            @*<p><a class="btn btn-default" href="">ADD &raquo;</a></p>*@
+            <button type="submit" value="submit" class="btn-default">Add</button>
+        </div>
+    </div>
+</div>
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.edit-mode').hide();
+        $('.edit-user, .cancel-user').on('click', function () {
+            var tr = $(this).parents('tr:first');
+            tr.find('.edit-mode, .display-mode').toggle();
+        });
+
+        $('.save-user').on('click', function () {
+            var tr = $(this).parents('tr:first');
+            var source = tr.find("#edtDSource").val();
+            var product = tr.find("#edtDProduct").val();
+            var id = tr.find("#edtDId").html();
+            var link = tr.find("#edtDLink").val();
+            var orgPrice = tr.find("#edtDOrgPrice").val();
+            var offPrice = tr.find("#edtDOffPrice").val();
+            tr.find("#lblDSource").text(source);
+            tr.find("#lblDProduct").text(product);
+            tr.find("#lblDLink").text(link);
+            tr.find("#lblDOrgPrice").text(orgPrice);
+            tr.find("#lblDOffPrice").text(offPrice);
+            tr.find('.edit-mode, .display-mode').toggle();
+            var DealModel =
+            {
+                "DId": id,
+                "DSource": source,
+                "DProduct": product,
+                "DLink": link,
+                "DOrgprice": orgPrice,
+                "DOffPrice": offPrice
+            };
+            $.ajax({
+                url: '/Home/Edit/',
+                data: JSON.stringify(DealModel),
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    alert(data);
+                }
+            });
+
+        });
+
+        $('.del-user').on('click', function () {
+            var tr = $(this).parents('tr:first');
+            var id = tr.find("#edtDId").html();
+            $.ajax({
+                url: '/Home/Delete/',
+                data: {'id':id},
+                type: 'POST',
+                //contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    alert(data);
+                    tr.hide();
+                }
+            });
+        });
+    });
+</script>
